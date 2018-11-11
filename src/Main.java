@@ -58,7 +58,7 @@ public class Main extends Application{
 		gridpane.add(message, 0, 0);
 		gridpane.add(send, 1, 0);
 		layout.getChildren().addAll(chat,gridpane);
-		ClientThread client = new ClientThread("localhost", 2500,chat,message);
+		ClientThread client = new ClientThread("localhost", 4343,chat,message);
         client.start();
 		send.setOnAction(e-> {
 			String text = message.getText();
@@ -111,12 +111,7 @@ class ClientThread extends Thread {
                         DataInputStream in = new DataInputStream(inFromServer);
                         String str = in.readUTF();
                         System.out.println(str);
-                        if(str.matches("Client No. :(.*)"))
-                        {
-                            String[] strSplit = str.split(":");
-                            lb.setText("Client" + strSplit[1]);
-                        }
-                        else
+                        if(!str.matches("Client No. :(.*)"))
                             tx.appendText(str+"\n");
                         
                     } catch (IOException ex) {
