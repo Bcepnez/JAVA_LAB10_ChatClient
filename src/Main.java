@@ -1,26 +1,15 @@
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -58,7 +47,7 @@ public class Main extends Application{
 		gridpane.add(message, 0, 0);
 		gridpane.add(send, 1, 0);
 		layout.getChildren().addAll(chat,gridpane);
-		ClientThread client = new ClientThread("localhost", 4343,chat,message);
+		ClientThread client = new ClientThread("localhost", 4343,chat);
         client.start();
 		send.setOnAction(e-> {
 			String text = message.getText();
@@ -78,18 +67,16 @@ class ClientThread extends Thread {
     final int port;
     private Socket client;
 
-    private TextArea tx;
-    private TextArea lb;
+    private TextArea TextShowArea;
 
-    public ClientThread(String ip, int port, TextArea tx,TextArea lb) {
+    public ClientThread(String ip, int port, TextArea tx) {
         this.url = ip;
         this.port = port;
-        this.tx = tx;
-        this.lb = lb;
+        this.TextShowArea = tx;
         try {
             client = new Socket(url, port);
         } catch (IOException ex) {
-            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+        	ex.printStackTrace();
         }
         System.out.println("Client created");
     }
@@ -112,10 +99,14 @@ class ClientThread extends Thread {
                         String str = in.readUTF();
                         System.out.println(str);
                         if(!str.matches("Client No. :(.*)"))
-                            tx.appendText(str+"\n");
+                            TextShowArea.appendText(str+"\n");
+                        else {
+                        	String[] mes = str.split(":");
+                        	TextShowArea.setPromptText("Client No : "+mes[1]);
+                        }
                         
                     } catch (IOException ex) {
-                        Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+                    	ex.printStackTrace();
                     }
                 }
             }
@@ -130,7 +121,7 @@ class ClientThread extends Thread {
             out.flush();
             out.writeUTF(str);   
         } catch (IOException ex) {
-            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+        	ex.printStackTrace();
         }
     }
 }
